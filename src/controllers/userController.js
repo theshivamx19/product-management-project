@@ -1,5 +1,6 @@
 const userModel = require("../models/userModel")
 const isValid = require("../validations/validators")
+const jwt = require('jsonwebtoken')
 
 
 
@@ -103,14 +104,14 @@ const loginUser = async function (req, res) {
     try {
         let email = req.body.email;
         let password = req.body.password
-        
+
         if (Object.keys(req.body).length == 0) {
             return res.status(400).send({ status: false, massage: "please provide email and password" })
         }
-        if (!isEmpty(email)) {
+        if (email.length == 0) {
             return res.statu(400).send({ status: false, msg: "please provide valid email id" })
         }
-        if (!isEmpty(password)) {
+        if (password.length == 0) {
             return res.statu(400).send({ status: false, msg: "please provide valid email id" })
         }
         let checkEmail = await userModel.findOne({ email: email }, { password: password });
@@ -128,7 +129,7 @@ const loginUser = async function (req, res) {
         return res.status(200).send({ status: true, msg: " Your JWT Token is successfully", myToken: Token })
     }
     catch (err) {
-        return res.status(500).send({ status: false, msg: message.err })
+        return res.status(500).send({ status: false, message: err.message })
     }
 }
 
@@ -161,36 +162,36 @@ const getUser = async function (req, res) {
 }
 
 const updateUser = async function (req, res) {
-    try{
-    const userId = req.params.userId
-    const data = req.body
-    const {fname, lname, email, profileImage, phone, password, address}= data
-    if (userId.length == 0) {
-        return res.status(400).send({ status: false, msg: "User id is required to update profile" })
+    try {
+        const userId = req.params.userId
+        const data = req.body
+        if (userId.length == 0) {
+            return res.status(400).send({ status: false, msg: "User id is required to update profile" })
+        }
+        if (Object.keys(data).length == 0) {
+            return res.status(400).send({ status: false, msg: "Atleast single data is required to update profile" })
+        }
+        const { fname, lname, email, profileImage, phone, password, address } = data
+        const checkUserId = await userModel.findOne({ _id: userId })
+        if (!checkUserId) {
+            return res.status(404).send({ status: false, msg: "User not exists with this id" })
+        }
+        const user = await userModel.findByIdAndUpdate({ _id: userId },
+            {
+                $set: {
+                    fname: fname,
+                    lname: lname,
+                    email : email,
+                    profileImage : profileImage,
+                    phone : phone,
+                    password : password, 
+                    address : address
+                }
+            }, { new: true })
+        return res.status(200).send({ status: true, message: 'Success', data: user })
     }
-    const checkUserId = await userModel.findOne({ _id: userId })
-    if (!checkUserId) {
-        return res.status(404).send({ status: false, msg: "User not exists with this id" })
-    }
-    if (Object.keys(data).length == 0) {
-        return res.status(400).send({ status: false, msg: "Atleast single data is required to update profile" })
-    }
-    const user = await userModel.findOneAndUpdate({ _id: userId },
-        {
-            $set: {
-                fname,
-                lname,
-                email,
-                profileImage,
-                phone,
-                password,
-                address
-            }
-        })
-        return res.status(200).send({status:true, message : 'Success', data : user})
-    }
-    catch(err){
-        return res.status(500).send({status:false, message:err.message})
+    catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
     }
 }
 

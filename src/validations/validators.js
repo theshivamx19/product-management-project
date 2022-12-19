@@ -1,3 +1,5 @@
+const mongoose=require("mongoose")
+
 
 const isValidRequestBody = function (requestBody) {
     return Object.keys(requestBody).length > 0
@@ -43,4 +45,8 @@ const isValidStreet = function (street){
 
 }
 
-module.exports = {isValidRequestBody,isValidName,validatePhone,isValidEmail,isValidPassword,validPin,isValidStreet}
+const isIdValid = function (value) {
+    return mongoose.Types.ObjectId.isValid(value); 
+  };
+
+module.exports = {isValidRequestBody,isValidName,validatePhone,isValidEmail,isValidPassword,validPin,isValidStreet,isIdValid}

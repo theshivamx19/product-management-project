@@ -1,9 +1,5 @@
 const userModel = require("../models/userModel")
-
-
-
 const isValid = require("../validations/validators")
-
 
 
 const createUser = async function (req, res) {

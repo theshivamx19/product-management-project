@@ -1,5 +1,5 @@
 const userModel = require("../models/userModel")
-const isValid = require("../validations/validators")
+const isValid = require("../validation/validators")
 
 
 const createUser = async function (req, res) {
@@ -94,8 +94,6 @@ const createUser = async function (req, res) {
   const getUser = async function(req,res){
     try{
         let userId = req.params.userId
-
-        //user id validation
         if(!userId){
             res.status(400).send({status:false,message:"Please provide userId!"})
         }

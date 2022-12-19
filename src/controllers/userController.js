@@ -95,3 +95,41 @@ const createUser = async function (req, res) {
 
 
   module.exports={createUser}
+
+
+  const loginuser= async function (req, res) {
+    try {
+     let email=req.body.email;
+     let password=req.body.password
+      
+      if(Object.keys(req.body).length==0){
+        return res.status(400).send({status:false,massage:"please provide email and password"})
+      }
+    if(!isEmpty(email)){
+        return res.statu(400).send({status:false,msg:"please provide valid email id"})
+    }
+    if(!isEmpty(password)){
+        return res.statu(400).send({status:false,msg:"please provide valid email id"})
+    }
+      let checkemail= await userModel.findOne({email:email},{password:password});
+      if (!checkemail){
+        return res.status(400).send({ status: false, massage: "Plase Enter Valid email And Password" })
+    
+      }
+      let Token = jwt.sign({
+       userId: checkemail._id.toString(),
+        iat: Date.now()
+      },
+        'Project',{expiresIn:"18000s"}
+      )
+    
+      return res.status(200).send({status: true, msg: " Your JWT Token is successfully",  myToken: Token })
+    }
+    catch (err) {
+     return res.status(500).send({ status: false, msg:message.err })
+    }
+  }
+
+
+
+module.exports = {loginuser };

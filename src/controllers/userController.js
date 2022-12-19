@@ -99,11 +99,11 @@ const createUser = async function (req, res) {
 //================================login user api ======================//
 
 
-const loginuser = async function (req, res) {
+const loginUser = async function (req, res) {
     try {
         let email = req.body.email;
         let password = req.body.password
-
+        
         if (Object.keys(req.body).length == 0) {
             return res.status(400).send({ status: false, massage: "please provide email and password" })
         }
@@ -113,13 +113,13 @@ const loginuser = async function (req, res) {
         if (!isEmpty(password)) {
             return res.statu(400).send({ status: false, msg: "please provide valid email id" })
         }
-        let checkemail = await userModel.findOne({ email: email }, { password: password });
-        if (!checkemail) {
+        let checkEmail = await userModel.findOne({ email: email }, { password: password });
+        if (!checkEmail) {
             return res.status(400).send({ status: false, massage: "Plase Enter Valid email And Password" })
 
         }
         let Token = jwt.sign({
-            userId: checkemail._id.toString(),
+            userId: checkEmail._id.toString(),
             iat: Date.now()
         },
             'Project', { expiresIn: "18000s" }
@@ -195,4 +195,4 @@ const updateUser = async function (req, res) {
 }
 
 //===================exports module=======================//
-module.exports = { createUser, loginuser, getUser, updateUser }
+module.exports = { createUser, loginUser, getUser, updateUser }

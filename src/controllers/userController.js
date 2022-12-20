@@ -187,33 +187,43 @@ const getUser = async function (req, res) {
 
 //====================update user api==============================//
 const updateUser = async function (req, res) {
-    try{
-    const userId = req.params.userId
-    const data = req.body
-    const {fname, lname, email, profileImage, phone, password, address}= data
-    if (userId.length == 0) {
-        return res.status(400).send({ status: false, msg: "User id is required to update profile" })
-    }
-    const checkUserId = await userModel.findOne({ _id: userId })
-    if (!checkUserId) {
-        return res.status(404).send({ status: false, msg: "User not exists with this id" })
-    }
-    if (Object.keys(data).length == 0) {
-        return res.status(400).send({ status: false, msg: "Atleast single data is required to update profile" })
-    }
-    const user = await userModel.findOneAndUpdate({ _id: userId },
-        {
-            $set: {
-                fname,
-                lname,
-                email,
-                profileImage,
-                phone,
-                password,
-                address
+    try {
+        const userId = req.params.userId
+        const data = req.body
+        if (userId.length == 0) {
+            return res.status(400).send({ status: false, msg: "User id is required to update profile" })
+        }
+        const checkUserId = await userModel.findOne({ _id: userId })
+        if (!checkUserId) {
+            return res.status(404).send({ status: false, msg: "User not exists with this id" })
+        }
+        if (Object.keys(data).length == 0) {
+            return res.status(400).send({ status: false, msg: "Atleast single data is required to update profile" })
+        }
+        let oldPassword = checkUserId.password
+        let { fname, lname, email, profileImage, phone, password, address } = data
+        if (password) {
+            const checkPassword = await bcrypt.compare(password, oldPassword)
+            if (checkPassword) {
+                return res.status(400).send({ status: false, msg: 'Password must be other than previous' })
             }
-        })
-        return res.status(200).send({status:true, message : 'Success', data : user})
+            const salt = await bcrypt.genSalt(saltRounds)
+            const bcryptedPassword = await bcrypt.hash(password, salt)
+            password = bcryptedPassword
+        }
+        const userData = await userModel.findOneAndUpdate({ _id: userId },
+            {
+                $set: {
+                    fname,
+                    lname,
+                    email,
+                    profileImage,
+                    phone,
+                    password,
+                    address
+                }
+            }, { new: true })
+        return res.status(200).send({ status: true, message: 'Success', data: userData })
     }
     catch (err) {
         return res.status(500).send({ status: false, message: err.message })

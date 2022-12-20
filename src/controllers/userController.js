@@ -1,6 +1,8 @@
 const userModel = require("../models/userModel")
 const isValid = require("../validations/validators")
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
+const saltRounds = 10
 
 
 
@@ -85,8 +87,9 @@ const createUser = async function (req, res) {
         if (!isValid.validPin(address.billing.pincode)) {
             return res.status(400).send({ status: false, msg: " invalid  pincode " })
         }
-
-
+        bcrypt.genSalt(saltRounds, function(err, salt){
+            bcrypt.hash(password, salt)
+        })
         const userDetails = await userModel.create(data);
         return res.status(201).send({ status: true, message: "user successfully created", data: userDetails })
     }

@@ -1,5 +1,8 @@
 const userModel = require("../models/userModel")
-const isValid = require("../validations/validators")
+const isValid = require("../validation/validators")
+const aws = require('../aws/awsConfiq')
+const bcrypt =require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 
 
@@ -56,6 +59,10 @@ const createUser = async function (req, res) {
         if (!isValid.isValidPassword(password)) {
             return res.status(400).send({ status: false, message: " pls provide password" })
         }
+        const salt = await bcrypt.genSalt(10)
+        const secPass = await bcrypt.hash(password, salt)
+        data.password = secPass
+
 
         if(address){
       data.address=JSON.parse(address)
@@ -95,7 +102,8 @@ const createUser = async function (req, res) {
               .status(400)
               .send({ status: false, message: `Enter format jpeg/jpg/png only.` });
     
-          let uploadedFileURL = await aws.uploadFile(files[0]);
+              let uploadedFileURL = await aws.uploadFile(files[0]);
+
     
           data.profileImage = uploadedFileURL;
         } else {
@@ -120,7 +128,7 @@ const loginuser = async function (req, res) {
         let email = req.body.email;
         let password = req.body.password
 
-        if (!isValid.isValidRequestBody(data)) {
+        if (!isValid.isValidRequestBody(req.body)) {
             return res.status(400).send({ status: false, message: "Please provide credentials in the request body!", })
         }
       
@@ -131,28 +139,34 @@ const loginuser = async function (req, res) {
             return res.status(400).send({ status: false, message: "Invalid email id" })
 
         }
-        if (!isEmpty(email)) {
-            return res.statu(400).send({ status: false, msg: "please provide valid email id" })
+        if (!(password)) {
+            return res.status(400).send({ status: false, msg: "Password is required" })
         }
-        if (!isEmpty(password)) {
-            return res.statu(400).send({ status: false, msg: "please provide valid email id" })
+        if (!isValid.isValidPassword(password)) {
+            return res.status(400).send({ status: false, msg: "please provide valid password" })
         }
         let checkemail = await userModel.findOne({ email: email }, { password: password });
         if (!checkemail) {
             return res.status(400).send({ status: false, massage: "Plase Enter Valid email And Password" })
 
         }
-        let Token = jwt.sign({
-            userId: checkemail._id.toString(),
-            iat: Date.now()
-        },
-            'Project', { expiresIn: "18000s" }
-        )
+        const decrypPassword = checkemail.password
+        const pass = await bcrypt.compare(password,decrypPassword)
+        if(!pass){
+            return res.status(400).send({ status: false, msg: "password incorrect" })
+        }
+        
+        let payload = {userId:checkemail._id.toString(),iat:Date.now(),expiresIn:"18000s"}
+        let token = jwt.sign(
+            payload,     
+            'Project')
+        
+        let obj ={userId:payload.userId,token:token}
 
-        return res.status(200).send({ status: true, msg: " User login successfull", data:{userId:token.userId,token:token.token} })
+        return res.status(200).send({ status: true, msg: " User login successfull", data:obj })
     }
     catch (err) {
-        return res.status(500).send({ status: false, msg: message.err })
+        return res.status(500).send({ status: false, msg: err.message })
     }
 }
 

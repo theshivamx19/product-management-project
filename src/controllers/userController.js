@@ -145,9 +145,9 @@ const loginuser = async function (req, res) {
         if (!isValid.isValidPassword(password)) {
             return res.status(400).send({ status: false, msg: "please provide valid password" })
         }
-        let checkemail = await userModel.findOne({ email: email }, { password: password });
+        let checkemail = await userModel.findOne({ email: email });
         if (!checkemail) {
-            return res.status(400).send({ status: false, massage: "Plase Enter Valid email And Password" })
+            return res.status(400).send({ status: false, massage: "Please Enter Valid email And Password" })
 
         }
         const decrypPassword = checkemail.password
@@ -155,7 +155,7 @@ const loginuser = async function (req, res) {
         if(!pass){
             return res.status(400).send({ status: false, msg: "password incorrect" })
         }
-        
+
         let payload = {userId:checkemail._id.toString(),iat:Date.now(),expiresIn:"18000s"}
         let token = jwt.sign(
             payload,     
@@ -198,6 +198,7 @@ const getUser = async function (req, res) {
     }
 }
 
+//====================update user api==============================//
 const updateUser = async function (req, res) {
     try{
     const userId = req.params.userId

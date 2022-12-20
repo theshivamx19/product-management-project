@@ -2,12 +2,12 @@ const express = require("express");
 const mongoose = require("mongoose");
 const route = require("./routes/route");
 const app = express()
-///const multer= require("multer");
+const multer= require("multer");
 
 app.use(express.json());  
-//app.use(multer().any()) 
+app.use(multer().any()) 
 
-
+ mongoose.set('strictQuery', false)
 mongoose.connect("mongodb+srv://kunal0709:Singhkunal7@cluster0.u5yk4f2.mongodb.net/group7Database",{
     useNewUrlParser:true  
 }) 

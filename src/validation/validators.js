@@ -32,6 +32,10 @@ const isValidPassword = function (password) {
   };
 
 
+const isValidFile = (img) => {
+  const regex = /(\/*\.(?:png|gif|webp|jpeg|jpg))/.test(img)
+  return regex
+}
 
 
 const validPin = function(pincode){
@@ -49,4 +53,4 @@ const isIdValid = function (value) {
     return mongoose.Types.ObjectId.isValid(value); 
   };
 
-module.exports = {isValidRequestBody,isValidName,validatePhone,isValidEmail,isValidPassword,validPin,isValidStreet,isIdValid}
+module.exports = {isValidRequestBody,isValidName,validatePhone,isValidEmail,isValidPassword,isValidFile,validPin,isValidStreet,isIdValid}

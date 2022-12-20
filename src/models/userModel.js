@@ -29,7 +29,7 @@ const userSchema= new mongoose.Schema({
          trim:true, 
          unique:true},
   
-    password:  {
+    password:  {   
         type:String, 
         required:true
     },
@@ -45,7 +45,8 @@ const userSchema= new mongoose.Schema({
             city:   {type:String, required:true, trim:true},
             pincode:{type:Number, required:true, trim:true}
           }
-    }
+        }
+    
 },  {timestamps:true})
 
 

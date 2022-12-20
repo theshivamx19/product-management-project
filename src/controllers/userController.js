@@ -100,7 +100,7 @@ const createUser = async function (req, res) {
         const userDetails = await userModel.create(data);
         return res.status(201).send({ status: true, message: "user successfully created", data: userDetails })
     }
-
+    }
     catch (error) {
         return res.status(500).send({ message: error.message });
     }
@@ -190,7 +190,6 @@ const updateUser = async function (req, res) {
     try{
     const userId = req.params.userId
     const data = req.body
-    const {fname, lname, email, profileImage, phone, password, address}= data
     if (userId.length == 0) {
         return res.status(400).send({ status: false, msg: "User id is required to update profile" })
     }
@@ -201,6 +200,7 @@ const updateUser = async function (req, res) {
     if (Object.keys(data).length == 0) {
         return res.status(400).send({ status: false, msg: "Atleast single data is required to update profile" })
     }
+    const {fname, lname, email, profileImage, phone, password, address}= data
     const user = await userModel.findOneAndUpdate({ _id: userId },
         {
             $set: {

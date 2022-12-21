@@ -2,13 +2,19 @@ const jwt = require("jsonwebtoken")
 
 const Authentication = function (req, res, next) {
     try {
-        let token = req.headers["x-api-key"]
+        let token = req.headers["authorization"]
+        //let token = req.headers.authorization
+
         if (!token) { return res.status(400).send({ status: false, message: "token must be present" }) }
-        jwt.verify(token, "Project", function (err, decodedToken) {
+       // console.log(token)
+        token=token.split(" ")
+        //console.log(token)
+        jwt.verify(token[1], "Project", function (err, decodedToken) {
             if (err) {
                 return res.status(400).send({ status: false, message: 'Invalid token' })
             }
-            req.decodedToken = decodedToken.userId
+            req.decodedToken = decodedToken
+            //console.log(decodedToken)
             next()
         })
     }

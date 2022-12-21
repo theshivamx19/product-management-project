@@ -58,7 +58,7 @@ const createUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "Password is required!" });
         }
         if (!isValid.isValidPassword(password)) {
-            return res.status(400).send({ status: false, message: " pls provide password" })
+            return res.status(400).send({ status: false, message: " please provide password" })
         }
         const salt = await bcrypt.genSalt(10)
         const secPass = await bcrypt.hash(password, salt)
@@ -210,6 +210,8 @@ const updateUser = async function (req, res) {
             const bcryptedPassword = await bcrypt.hash(password, salt)
             password = bcryptedPassword
         }
+        data.address = JSON.parse(data.address);
+    
         const userData = await userModel.findOneAndUpdate({ _id: userId },
             {
                 $set: {

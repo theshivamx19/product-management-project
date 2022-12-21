@@ -15,6 +15,7 @@ router.get("/user/:userId/profile",mid.Authentication,userController.getUser)
 router.post("/products",productController.createProducts);
 router.get("/products",productController.getProductByFilter)
 router.get("/products/:productId",productController.getproduct)
+router.put("/products/:productId",productController.updateProduct)
 router.delete("/products/:productId",productController.deleteProductById)
 
 module.exports= router 

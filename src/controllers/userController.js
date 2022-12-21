@@ -3,7 +3,6 @@ const isValid = require("../validation/validators")
 const aws = require('../aws/awsConfiq')
 const bcrypt =require('bcrypt')
 const jwt = require('jsonwebtoken')
-const bcrypt = require('bcrypt')
 const saltRounds = 10
 
 

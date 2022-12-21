@@ -53,4 +53,12 @@ const isIdValid = function (value) {
     return mongoose.Types.ObjectId.isValid(value); 
   };
 
-module.exports = {isValidRequestBody,isValidName,validatePhone,isValidEmail,isValidPassword,isValidFile,validPin,isValidStreet,isIdValid}
+  const isValidAvailableSizes = (availablesizes) => {
+    for( i=0 ;i<availablesizes.length; i++){
+      if(!["S", "XS","M","X", "L","XXL", "XL"].includes(availablesizes[i])) return false
+    }
+    return true
+  };
+
+
+module.exports = {isValidRequestBody,isValidName,validatePhone,isValidEmail,isValidPassword,isValidFile,validPin,isValidStreet,isIdValid,isValidAvailableSizes}

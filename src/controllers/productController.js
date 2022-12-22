@@ -222,6 +222,9 @@ const updateProduct = async function (req, res) {
             return res.status(400).send({ status: false, message: "Provide Data in Body" });
 
         //productId validation
+        if (!productId) {
+            res.status(400).send({ status: false, message: "Please provide productId!" })
+        }
         if (!isValid.isIdValid(productId)) {
             return res.status(400).send({ status: false, message: "Please provide valid productId" });
         }
@@ -392,8 +395,11 @@ const deleteProductById = async function (req, res) {
         const productId = req.params.productId;
 
         //productId validation
+        if (!productId) {
+            res.status(400).send({ status: false, message: "Please provide productId!" })
+        }
         if (!isValid.isIdValid(productId)) {
-            return res.status(400).send({ status: false, message: "Inavlid productId." });
+            return res.status(400).send({ status: false, message: "Invalid productId." });
         }
         const findProduct = await productModel.findById(productId);
         if (!findProduct) {

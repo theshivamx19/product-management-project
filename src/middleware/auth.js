@@ -8,7 +8,7 @@ const Authentication = function (req, res, next) {
         if (!token) { return res.status(400).send({ status: false, message: "token must be present" }) }
        // console.log(token)
         token=token.split(" ")
-        //console.log(token)
+       // console.log(token)
         jwt.verify(token[1], "Project", function (err, decodedToken) {
             if (err) {
                 return res.status(400).send({ status: false, message: 'Invalid token' })
@@ -25,7 +25,8 @@ const Authentication = function (req, res, next) {
 
 const Authorization = function (req, res, next) {
     try {
-        const tokenUserId = req.decodedToken
+        const tokenUserId = req.decodedToken.userId
+        console.log(tokenUserId)
         const userId = req.params.userId
         if (tokenUserId != userId) {
             return res.status(403).send({ status: false, message: 'You are not authorized' })

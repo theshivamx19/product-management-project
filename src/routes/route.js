@@ -21,6 +21,8 @@ router.delete("/products/:productId",productController.deleteProductById)
 
 //=============cart api==================//
 router.post("/users/:userId/cart",mid.Authentication,mid.Authorization,cartController.createCart)
+router.put("/users/:userId/cart",mid.Authentication,mid.Authorization,cartController.updateCart)
+router.get("/users/:userId/cart",mid.Authentication,mid.Authorization,cartController.getCart)
 router.delete("/users/:userId/cart",mid.Authentication,mid.Authorization,cartController.deleteCart)
 
 module.exports= router 

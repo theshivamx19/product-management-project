@@ -48,6 +48,10 @@ const createOrder = async function (req, res) {
         if (cartExist.items.length == 0) {
             return res.status(404).send({ status: false, message: "There Is No Items for Order In Your Cart" });
         }
+        if(cartExist.userId.toString()!=userId)
+        {
+            return res.status(400).send({status:false,message:"This Cart is not available with this user ID"})
+        }
 
         if (cartExist) {
             data["totalPrice"] = cartExist.totalPrice;
@@ -146,6 +150,12 @@ const updateOrder = async (req, res) => {
         }
         data["status"] = availableStatus;
 
+        if(availableStatus == "completed" && orderExist.status =="completed"){
+            return res.status(400).send({ status: false, message: "Your status is already in completed!" });
+        }
+        if(availableStatus == "canceled" && orderExist.status =="canceled"){
+            return res.status(400).send({ status: false, message: "Your status is already in canceled stage!" });
+        }
 
         if (orderExist.cancellable == false) {
             return res.status(400).send({ status: false, message: "This Order Can't be cancelled" });

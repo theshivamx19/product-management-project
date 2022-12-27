@@ -53,12 +53,7 @@ const isIdValid = function (value) {
     return mongoose.Types.ObjectId.isValid(value); 
   };
 
-//   const isValidAvailableSizes = (availablesizes) => {
-//     for( i=0 ;i<availablesizes.length; i++){
-//       if(!["S", "XS","M","X", "L","XXL", "XL"].includes(availablesizes[i])) return false
-//     }
-//     return true
-//   };
+  
 const isValidAvailableSizes = (sizes) => {
     return ["S", "XS","M","X", "L","XXL", "XL"].includes(sizes)}
 

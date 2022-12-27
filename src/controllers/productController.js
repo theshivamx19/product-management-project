@@ -127,7 +127,7 @@ const getProductByFilter = async function (req, res) {
         let { size, name, priceGreaterThan, priceLessThan } = filter;
         let data = { isDeleted: false };
 
-        //filtering through size key(availableSizes)
+        //filtering through size key(availableSizes) 
         if (size != null) {  
             if (size.length > 0) {
                 size = size.replace(/\s+/g, "").toUpperCase().split(",").map(String);

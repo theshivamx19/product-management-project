@@ -11,6 +11,7 @@ const mid=require("../middleware/auth")
 router.post("/register",userController.createUser);
 router.post("/login",userController.loginuser)
 router.get("/user/:userId/profile",mid.Authentication,userController.getUser)
+router.put("/user/:userId/profile",mid.Authentication,mid.Authorization,userController.updateUser)
 
 //=============product api==================//
 

@@ -240,45 +240,153 @@ const getUser = async function (req, res) {
 //====================update user api==============================//
 const updateUser = async function (req, res) {
     try {
-        const userId = req.params.userId
-        const data = req.body
-        if (userId.length == 0) {
-            return res.status(400).send({ status: false, msg: "User id is required to update profile" })
-        }
-        const checkUserId = await userModel.findOne({ _id: userId })
-        if (!checkUserId) {
-            return res.status(404).send({ status: false, msg: "User not exists with this id" })
-        }
-        if (Object.keys(data).length == 0) {
-            return res.status(400).send({ status: false, msg: "Atleast single data is required to update profile" })
-        }
-        let oldPassword = checkUserId.password
-        let { fname, lname, email, profileImage, phone, password, address } = data
-        if (password) {
-            const checkPassword = await bcrypt.compare(password, oldPassword)
-            if (checkPassword) {
-                return res.status(400).send({ status: false, msg: 'Password must be other than previous' })
-            }
-            const salt = await bcrypt.genSalt(saltRounds)
-            const bcryptedPassword = await bcrypt.hash(password, salt)
-            password = bcryptedPassword
-        }
-        data.address = JSON.parse(data.address);
 
-        const userData = await userModel.findOneAndUpdate({ _id: userId },
-            {
-                $set: {
-                    fname,
-                    lname,
-                    email,
-                    profileImage,
-                    phone,
-                    password,
-                    address
-                }
-            }, { new: true })
-        return res.status(200).send({ status: true, message: 'Success', data: userData })
-    }
+        const data = req.body
+        const userId = req.params.userId
+        const files = req.files
+        const update = {}
+    
+        const { fname, lname, email, phone, password } = data
+    
+        if (!isValid.isValidRequestBody(data) && !files) {
+          return res.status(400).send({status: false,message: "Please provide data in body"})
+        }
+    
+        if (fname || fname == '') {
+          if (!fname || !isValid.isValidName(fname)) {
+            return res.status(400).send({ status: false, message: "fname is invalid" })
+          }
+          update["fname"] = fname 
+        }
+    
+        if (lname || lname == '') {
+          if (!lname || !isValid.isValidName(lname)) {
+            return res.status(400).send({ status: false, message: "lname is invalid" })
+          }
+          update["lname"] = lname; 
+        }
+    
+        if (email || email == '') {
+          if (!isValid.isValidEmail(email)) {
+            return res.status(400).send({ status: false, message: "Email is invalid" })
+          }
+    
+          let userEmail = await userModel.findOne({ email: email })
+          if (userEmail) {
+            return res.status(409).send({status: false,message:"This email is already registered"})
+          }
+          update["email"] = email;
+        }
+    
+        if (phone || phone == '') {
+          if (!isValid.validatePhone(phone)) {return res.status(400).send({ status: false, message: "Phone is invalid" })
+          }
+    
+          let userNumber = await userModel.findOne({ phone: phone })
+          if (userNumber){
+            return res.status(409).send({status: false,message:"This phone number already registered"})
+           }
+          update["phone"] = phone
+        }
+    
+        if (password || password == '') {
+          if (!isValid.isValidPassword(password)) {
+            return res.status(400).send({status: false,message:"Password should be of 8 to 15 characters and it should contain one Uppercase, one lower case, and Number, Ex - Abhishek@12345,Qwe#121"})
+          }
+    
+          const salt = await bcrypt.genSalt(10)
+          data.password = await bcrypt.hash(data.password, salt)
+    
+          let encryptPassword = data.password
+          update["password"] = encryptPassword
+        }
+    
+        let address = data.address
+    
+        if (address || address == '') {
+    
+          address=JSON.parse(address)
+    
+          let { shipping, billing } = address
+    
+          if (shipping || shipping == '') {
+            let { street, city, pincode } = shipping
+    
+            if (street || street =='') {
+              if (!address.shipping.street) {
+                return res.status(400).send({ status: false, message: "Invalid shipping street" })
+              }
+              update["address.shipping.street"] = street
+            }
+    
+            if (city || city == '') {
+              if (!address.shipping.city) {
+                return res.status(400).send({ status: false, message: "Invalid shipping city" })
+              }
+              update["address.shipping.city"] = city
+            }
+    
+            if (pincode || pincode == '') {
+              if (!isValid.validPin(address.shipping.pincode)) {
+                return res.status(400).send({ status: false, message: "Invalid shipping pincode" })
+              }
+              update["address.shipping.pincode"] = pincode
+            }
+          }
+    
+          if (billing || billing == '') {
+            let { street, city, pincode } = billing;
+    
+            if (street || street == '') {
+              if (!address.billing.street) {
+                return res.status(400).send({ status: false, message: "Invalid billing street" })
+              }
+              update["address.billing.street"] = street
+            }
+    
+            if (city || city == '') {
+              if (!address.billing.city) {
+                return res.status(400).send({ status: false, message: "Invalid billing city" })
+              }
+              update["address.billing.city"] = city
+            }
+    
+            if (pincode || pincode == '') {
+              if (!isValid.validPin(address.billing.pincode)) {
+                return res.status(400).send({ status: false, message: "Invalid billing pincode" })
+              }
+              update["address.billing.pincode"] = pincode
+            }
+          }
+    
+          //console.log(address)
+        }
+        
+    
+        if (files && files.length > 0) {
+    
+          if (!isValid.isValidFile(files[0].originalname)){
+            return res.status(400).send({ status: false, message: `Enter format should be in jpeg/jpg/png only` })
+          }
+    
+          let uploadedFileURL = await aws.uploadFile(files[0])
+          //console.log(uploadedFileURL)
+    
+          update["profileImage"] = uploadedFileURL
+        }
+    
+        else if (Object.keys(data).includes("profileImage")) {
+          return res.status(400).send({ status: false, message: "please put the profileimage" });
+        }
+    
+        const updateUser = await userModel.findOneAndUpdate(
+          { _id: userId },
+          {$set:update},
+          { new: true }
+        )
+    
+        return res.status(200).send({status: true,message: "user profile successfully updated",data: updateUser})
+      } 
     catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
